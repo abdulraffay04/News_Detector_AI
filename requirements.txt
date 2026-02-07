@@ -1,0 +1,12 @@
+# Data Processing
+pandas
+numpy
+
+# Machine Learning & NLP
+tensorflow
+transformers
+scikit-learn
+
+# Web Backend
+flask
+flask-cors

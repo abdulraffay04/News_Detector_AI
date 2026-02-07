@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP FAKE NEWS DETECTOR | News Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="glass-container">
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h1>NEWS<span>DETECTOR</span> AI</h1>
+        </div>
+        <p class="subtitle">Enter news details below for a deep-learning authenticity check</p>
+    </header>
+
+    <div class="translator-grid">
+        <div class="language-card">
+            <div class="card-header">
+                <div class="badge"><i class="fa-solid fa-heading"></i> ARTICLE HEADLINE</div>
+            </div>
+            <input type="text" id="newsTitle" class="modern-input" placeholder="Enter headline..." oninput="hideStamp()">
+            
+            <div class="card-header" style="margin-top: 20px;">
+                <div class="badge"><i class="fa-solid fa-align-left"></i> FULL TEXT BODY</div>
+            </div>
+            <div class="input-wrapper">
+                <textarea id="newsText" placeholder="Paste news body here..." oninput="hideStamp()" onclick="hideStamp()"></textarea>
+                
+                <div id="stamp" class="stamp"></div>
+                
+                <div id="loaderOverlay" class="loader-overlay">
+                    <div class="spinner"></div>
+                    <p>BERT is analyzing text patterns...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-area">
+        <button class="primary-btn" id="analyzeBtn" onclick="analyzeNews()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Run Deep Learning Model Analysis
+        </button>
+        <p class="status-text" id="statusText"></p>
+    </div>
+
+    <footer>
+        News Detector AI • NLP Project
+    </footer>
+</div>
+
+<script>
+    function hideStamp() {
+        const stamp = document.getElementById('stamp');
+        const statusText = document.getElementById('statusText');
+        if (stamp.style.display === "block") {
+            stamp.style.display = "none";
+            statusText.innerText = "";
+        }
+    }
+
+    async function analyzeNews() {
+        const titleValue = document.getElementById('newsTitle').value;
+        const textValue = document.getElementById('newsText').value;
+        const stamp = document.getElementById('stamp');
+        const loader = document.getElementById('loaderOverlay');
+        const statusText = document.getElementById('statusText');
+
+        if (!titleValue.trim() || !textValue.trim()) {
+            alert("Please provide both a Title and the News Body!");
+            return;
+        }
+
+        const combinedContent = titleValue + " " + textValue;
+
+        loader.style.display = "flex";
+        stamp.style.display = "none";
+        statusText.innerText = "Processing...";
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: combinedContent })
+            });
+
+            const data = await response.json();
+            loader.style.display = "none";
+
+            stamp.innerText = data.prediction;
+            stamp.style.display = "block";
+            
+            if (data.prediction === "FAKE NEWS") {
+                stamp.className = "stamp fake-stamp";
+                statusText.innerText = "Result: High probability of misinformation.";
+                statusText.style.color = "#ef4444";
+            } else {
+                stamp.className = "stamp real-stamp";
+                statusText.innerText = "Result: Content appears to be authentic.";
+                statusText.style.color = "#10b981";
+            }
+        } catch (error) {
+            loader.style.display = "none";
+            statusText.innerText = "Error: Connection to model failed.";
+        }
+    }
+</script>
+
+</body>
+</html>

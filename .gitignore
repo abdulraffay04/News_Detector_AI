@@ -1,0 +1,14 @@
+# Ignore the virtual environment
+venv/
+.venv/
+env/
+
+# Ignore the trained model (it's too big for GitHub)
+news_model/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore the dataset if it's large
+*.csv
